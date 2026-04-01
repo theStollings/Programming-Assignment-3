@@ -123,11 +123,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BufferBlock.h" />
     <ClInclude Include="BufferBlockADT.h" />
+    <ClInclude Include="BufferPool.h" />
     <ClInclude Include="BufferPoolADT.h" />
     <ClInclude Include="constants.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BufferBlock.cpp" />
+    <ClCompile Include="BufferPool.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
