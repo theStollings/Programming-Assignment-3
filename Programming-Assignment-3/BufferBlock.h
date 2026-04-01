@@ -3,7 +3,7 @@
 #include "BufferBlockADT.h"
 #include <cstring>
 
-class BufferBlock : public BufferBlock
+class BufferBlock : public BufferBlockADT
 {
 private:
 	static const int BLOCK_SIZE = 4096;
@@ -13,5 +13,18 @@ public:
 	{
 		memset(buffer, 0, BLOCK_SIZE); // allocates buffer with zeros
 	}
-	
+
+	BufferBlock(char* data, int sz = 4096)
+	{
+		memset(buffer, 0, BLOCK_SIZE);
+		if (data != nullptr)
+		{
+			int copySize = (sz < BLOCK_SIZE) ? sz : BLOCK_SIZE; // copy-size within bounds
+			memcpy(buffer, data, copySize); // copy data to buffer
+		}
+	}
+
+
+
+
 };

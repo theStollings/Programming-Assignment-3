@@ -130,8 +130,6 @@
     <ClInclude Include="constants.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BufferBlock.cpp" />
-    <ClCompile Include="BufferPool.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
