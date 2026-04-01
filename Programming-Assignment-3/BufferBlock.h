@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BufferBlockADT.h"
-#include <cstring> // for memcpy
-#include <cstdint>
+#include <cstring> // for memcpy, copying raw bytes of memory
+#include <cstdint> // precisley 4 bytes for int, not machine dependent
 
 class BufferBlock : public BufferBlockADT
 {
@@ -27,11 +27,38 @@ public:
 
 	virtual ~BufferBlock() {} // make sure child destructor runs
 
-	virtual void setID(int id) override
+	virtual void getData(int pos, int sz, char* data)
 	{
-		memcpy(buffer, &id, sizeof(int32_t)); // first 4 bytes to id
+		// CHECK FOR VALID INPUTS! MORE WORK ON THIS
+		int availableBytes = BLOCK_SIZE - pos; // get available bytes
+		int copySize = (sz < availableBytes) ? sz : availableBytes; // valid copy size
+		memcpy(data, buffer + pos, copySize); // read the range of the block
 	}
 
+	virtual void setID(int id) override
+	{
+		memcpy(buffer, &id, sizeof(int32_t)); // set first 4 bytes to block ID
+	}
 
+	virtual int getID() const override
+	{
+		int id;
+		memcpy(&id, buffer, sizeof(int32_t)); // get first 4 bytes (block ID)
+		return id;
+	}
 
+	inline virtual int getBlockSize() const
+	{
+		return BLOCK_SIZE;
+	}
+
+	virtual char* getBlock() const
+	{
+		return const_cast<char*>(buffer); // buffer must be cast to const
+	}
+
+	virtual void setBlock(char* blk)
+	{
+		memcpy(buffer, blk, BLOCK_SIZE);
+	}
 };
