@@ -1,7 +1,8 @@
 #pragma once
 
 #include "BufferBlockADT.h"
-#include <cstring>
+#include <cstring> // for memcpy
+#include <cstdint>
 
 class BufferBlock : public BufferBlockADT
 {
@@ -24,6 +25,12 @@ public:
 		}
 	}
 
+	virtual ~BufferBlock() {} // make sure child destructor runs
+
+	virtual void setID(int id) override
+	{
+		memcpy(buffer, &id, sizeof(int32_t)); // first 4 bytes to id
+	}
 
 
 
