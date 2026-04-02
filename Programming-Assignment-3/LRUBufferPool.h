@@ -110,4 +110,27 @@ private:
 		}
 		return it->second;
 	}
+
+	// Evicts the LRU block and returns its pool slot index for reuse
+	int evictLRUBuffer() {
+		if (lruOrder.empty()) {
+			return 0;
+		}
+		int index = lruOrder.back();
+		lruOrder.pop_back();
+
+		int oldID = pool[index]->getID();
+		idToIndex.erase(oldID);
+
+		return index;
+	}
+
+	// Moves a pool slot index to the front (MRU position) of lruOrder
+	void moveIndexToFront(int index) {
+		auto it = find(lruOrder.begin(), lruOrder.end(), index);
+		if (it != lruOrder.end()) {
+			lruOrder.erase(it);
+		}
+		lruOrder.push_front(index);
+	}
 };
