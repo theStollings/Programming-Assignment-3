@@ -125,7 +125,7 @@
   <ItemGroup>
     <ClInclude Include="BufferBlock.h" />
     <ClInclude Include="BufferBlockADT.h" />
-    <ClInclude Include="BufferPool.h" />
+    <ClInclude Include="LRUBufferPool.h" />
     <ClInclude Include="BufferPoolADT.h" />
     <ClInclude Include="constants.h" />
   </ItemGroup>

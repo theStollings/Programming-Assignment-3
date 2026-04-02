@@ -27,7 +27,7 @@
     <ClInclude Include="BufferBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BufferPool.h">
+    <ClInclude Include="LRUBufferPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

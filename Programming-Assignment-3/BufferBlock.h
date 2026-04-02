@@ -1,8 +1,11 @@
 #pragma once
 
 #include "BufferBlockADT.h"
+#include "constants.h"
+
 #include <cstring> // for memcpy, copying raw bytes of memory
 #include <cstdint> // precisley 4 bytes for int, not machine dependent
+#include <algorithm> // for std::min
 
 class BufferBlock : public BufferBlockADT
 {
