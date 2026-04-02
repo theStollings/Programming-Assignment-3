@@ -77,6 +77,22 @@ public:
 		}
 	}
 
+	void printBufferBlockOrder() override {
+		cout << "My buffer block order from most recently used to LRU is:\n\t";
+		for (int index : lruOrder) {
+			cout << pool[index]->getID() << ", ";
+		}
+		cout << "\n";
+	}
+
+	int getLRUBlockID() override {
+		if (lruOrder.empty()) {
+			return -1;
+		}
+		int lruIndex = lruOrder.back();
+		return pool[lruIndex]->getID();
+	}
+
 private:
 	string filename;
 	ifstream file;
@@ -85,4 +101,13 @@ private:
 	vector<BufferBlock*> pool;
 	list<int> lruOrder;                // Front = MRU, back = LRU
 	unordered_map<int, int> idToIndex; // blockID -> pool slot index
+
+	// Returns pool slot index for the given block ID, or -1 if not cached
+	int findBufferIndex(int id) {
+		auto it = idToIndex.find(id);
+		if (it == idToIndex.end()) {
+			return -1;
+		}
+		return it->second;
+	}
 };
