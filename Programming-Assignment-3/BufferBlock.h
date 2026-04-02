@@ -12,24 +12,24 @@ class BufferBlock : public BufferBlockADT
 private:
 	int blockID; // block ID stored in first 4 bytes of buffer
 	char* data; // pointer to block data (after the 4-byte header)
-	int blockSize; // total size of the block (including header)
+	int BLOCK_SIZE; // total size of the block (including header)
 public:
 	BufferBlock()
 	{
-		memset(data, 0, blockSize); // allocates buffer with zeros
+		memset(data, 0, BLOCK_SIZE); // allocates buffer with zeros
 	}
 
 	BufferBlock(char* initData = nullptr, int size = BLOCKSIZE) {
-		blockSize = size;
-		data = new char[blockSize];
-		memset(data, 0, blockSize);
+		BLOCK_SIZE = size;
+		data = new char[BLOCK_SIZE];
+		memset(data, 0, BLOCK_SIZE);
 
 		blockID = -1;
 		int32_t id = -1; // default block ID for uninitialized block
 		memcpy(data, &id, sizeof(id)); // store default block ID in first 4 bytes
 
 		if (initData != nullptr) {
-			memcpy(data, initData, blockSize); // copy initData into the block (including header)
+			memcpy(data, initData, BLOCK_SIZE); // copy initData into the block (including header)
 			int32_t stored = 0;
 			memcpy(&stored, data, sizeof(stored)); // read block ID from first 4 bytes
 			blockID = static_cast<int>(stored); // cache block ID in member variable
@@ -48,7 +48,7 @@ public:
 		}
 
 		const int header = static_cast<int>(sizeof(int32_t)); // 4 bytes for block ID
-		int dataRegionSize = blockSize - header;
+		int dataRegionSize = BLOCK_SIZE - header;
 
 		if (pos >= dataRegionSize) {
 			return;
@@ -71,8 +71,8 @@ public:
 	virtual int getID() const override
 	{
 		int32_t id32 = 0;
-		memcpy(&id32, data, sizeof(id32));
-		return static_cast<int>(id32);
+		memcpy(&id32, data, sizeof(id32)); // read the block ID from the first 4 bytes of the data buffer
+		return static_cast<int>(id32); // return the block ID as an int
 	}
 
 	inline virtual int getBlockSize() const
@@ -82,11 +82,11 @@ public:
 
 	virtual char* getBlock() const
 	{
-		return const_cast<char*>(buffer); // buffer must be cast to const
+		return const_cast<char*>(data); // buffer must be cast to const
 	}
 
 	virtual void setBlock(char* blk)
 	{
-		memcpy(buffer, blk, BLOCK_SIZE);
+		memcpy(data, blk, BLOCK_SIZE);
 	}
 };
