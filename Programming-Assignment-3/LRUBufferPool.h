@@ -133,4 +133,34 @@ private:
 		}
 		lruOrder.push_front(index);
 	}
+
+	// Reads block 'number' from disk into pool slot 'index'.
+	// Layout: first 4 bytes = block ID, remaining bytes = file data.
+	void loadBlockFromDisk(int number, int index) {
+		if (!file.is_open()) return;
+
+		const int header = static_cast<int>(sizeof(int32_t));
+		const int dataRegionSize = blockSize - header;
+
+		// Read raw file bytes for this block
+		vector<char> temp(dataRegionSize, 0);
+		streamoff filePos = static_cast<streamoff>(number) * static_cast<streamoff>(blockSize);
+		file.clear();
+		file.seekg(filePos, ios::beg);
+		file.read(temp.data(), dataRegionSize);
+		streamsize actuallyRead = file.gcount();
+
+		// Write into pool block: header slot then data region
+		char* target = pool[index]->getBlock();
+		memset(target, 0, blockSize);
+
+		int toCopy = static_cast<int>(min<streamsize>(actuallyRead, dataRegionSize));
+		if (toCopy > 0) {
+			memcpy(target + header, temp.data(), toCopy);
+		}
+
+		// Set block ID (also updates first 4 bytes via setID)
+		pool[index]->setID(number);
+		idToIndex[number] = index;
+	}
 };
