@@ -44,6 +44,39 @@ public:
 		pool.clear();
 	}
 
+	void getBytes(char* space, int size, int position) override {
+		if (!file.is_open() || space == nullptr || size <= 0 || position < 0) return;
+
+		int bytesRemaining = size;
+		int writeOffset = 0;
+		int filePos = position;
+
+		while (bytesRemaining > 0) {
+			int blockNum = filePos / blockSize;
+			int offsetInBlock = filePos % blockSize;
+
+			int bufIndex = findBufferIndex(blockNum);
+			if (bufIndex == -1) {
+				// Block not in pool -- evict LRU and load from disk
+				bufIndex = evictLRUBuffer();
+				loadBlockFromDisk(blockNum, bufIndex);
+			}
+
+			// Move accessed block to most-recently-used position
+			moveIndexToFront(bufIndex);
+
+			// How many bytes available in this block from the current offset
+			int available = blockSize - offsetInBlock;
+			int toCopy = min(bytesRemaining, available);
+
+			pool[bufIndex]->getData(offsetInBlock, toCopy, space + writeOffset);
+
+			bytesRemaining -= toCopy;
+			writeOffset += toCopy;
+			filePos += toCopy;
+		}
+	}
+
 private:
 	string filename;
 	ifstream file;
