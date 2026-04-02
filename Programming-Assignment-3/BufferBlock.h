@@ -10,25 +10,38 @@
 class BufferBlock : public BufferBlockADT
 {
 private:
-	static const int BLOCK_SIZE = 4096;
-	char buffer[BLOCK_SIZE];
+	int blockID; // block ID stored in first 4 bytes of buffer
+	char* data; // pointer to block data (after the 4-byte header)
+	int blockSize; // total size of the block (including header)
 public:
 	BufferBlock()
 	{
-		memset(buffer, 0, BLOCK_SIZE); // allocates buffer with zeros
+		memset(data, 0, blockSize); // allocates buffer with zeros
 	}
 
-	BufferBlock(char* data, int sz = 4096)
-	{
-		memset(buffer, 0, BLOCK_SIZE);
-		if (data != nullptr)
-		{
-			int copySize = (sz < BLOCK_SIZE) ? sz : BLOCK_SIZE; // copy-size within bounds
-			memcpy(buffer, data, copySize); // copy data to buffer
+	BufferBlock(char* initData = nullptr, int size = BLOCKSIZE) {
+		blockSize = size;
+		data = new char[blockSize];
+		memset(data, 0, blockSize);
+
+		// Default block ID stored in first 4 bytes
+		blockID = -1;
+		int32_t id = -1;
+		memcpy(data, &id, sizeof(id));
+
+		if (initData != nullptr) {
+			memcpy(data, initData, blockSize);
+			// Extract block ID stored in first 4 bytes
+			int32_t stored = 0;
+			memcpy(&stored, data, sizeof(stored));
+			blockID = static_cast<int>(stored);
 		}
 	}
 
-	virtual ~BufferBlock() {} // make sure child destructor runs
+	virtual ~BufferBlock() { // make sure child destructor runs
+		delete[] data;
+		data = nullptr;
+	}
 
 	virtual void getData(int pos, int sz, char* data)
 	{
