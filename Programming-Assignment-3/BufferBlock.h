@@ -24,17 +24,15 @@ public:
 		data = new char[blockSize];
 		memset(data, 0, blockSize);
 
-		// Default block ID stored in first 4 bytes
 		blockID = -1;
-		int32_t id = -1;
-		memcpy(data, &id, sizeof(id));
+		int32_t id = -1; // default block ID for uninitialized block
+		memcpy(data, &id, sizeof(id)); // store default block ID in first 4 bytes
 
 		if (initData != nullptr) {
-			memcpy(data, initData, blockSize);
-			// Extract block ID stored in first 4 bytes
+			memcpy(data, initData, blockSize); // copy initData into the block (including header)
 			int32_t stored = 0;
-			memcpy(&stored, data, sizeof(stored));
-			blockID = static_cast<int>(stored);
+			memcpy(&stored, data, sizeof(stored)); // read block ID from first 4 bytes
+			blockID = static_cast<int>(stored); // cache block ID in member variable
 		}
 	}
 
@@ -43,24 +41,38 @@ public:
 		data = nullptr;
 	}
 
-	virtual void getData(int pos, int sz, char* data)
+	virtual void getData(int pos, int sz, char* outData)
 	{
-		// CHECK FOR VALID INPUTS! MORE WORK ON THIS
-		int availableBytes = BLOCK_SIZE - pos; // get available bytes
-		int copySize = (sz < availableBytes) ? sz : availableBytes; // valid copy size
-		memcpy(data, buffer + pos, copySize); // read the range of the block
+		if (outData == nullptr || pos < 0 || sz <= 0) {
+			return;
+		}
+
+		const int header = static_cast<int>(sizeof(int32_t)); // 4 bytes for block ID
+		int dataRegionSize = blockSize - header;
+
+		if (pos >= dataRegionSize) {
+			return;
+		}
+
+		int available = dataRegionSize - pos;
+		int toCopy = std::min(sz, available); // how many bytes we can actually copy from the data region
+		if (toCopy > 0) {
+			std::memcpy(outData, data + header + pos, toCopy); // copy from data region, skipping header
+		}
 	}
 
 	virtual void setID(int id) override
 	{
-		memcpy(buffer, &id, sizeof(int32_t)); // set first 4 bytes to block ID
+		blockID = id;
+		int32_t id32 = static_cast<int32_t>(id); // store the block ID as a 4-byte integer in the first 4 bytes of data
+		memcpy(data, &id32, sizeof(id32)); // copy the block ID into the first 4 bytes of the data buffer
 	}
 
 	virtual int getID() const override
 	{
-		int id;
-		memcpy(&id, buffer, sizeof(int32_t)); // get first 4 bytes (block ID)
-		return id;
+		int32_t id32 = 0;
+		memcpy(&id32, data, sizeof(id32));
+		return static_cast<int>(id32);
 	}
 
 	inline virtual int getBlockSize() const
