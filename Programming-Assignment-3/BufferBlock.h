@@ -87,6 +87,12 @@ public:
 
 	virtual void setBlock(char* blk)
 	{
+		if (blk == nullptr) {
+			return;
+		}
 		memcpy(buffer, blk, BLOCK_SIZE);
+		int32_t stored = 0;
+		memcpy(&stored, buffer, sizeof(stored));
+		blockID = static_cast<int>(stored);
 	}
 };
